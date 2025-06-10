@@ -3,6 +3,8 @@ import { useState } from "react";
 export default function VideoUpload() {
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0); // For progress bar
+  const [analysisResult, setAnalysisResult] = useState(null); // To store score and suggestions
 
   const handleUpload = async (e) => {
     e.preventDefault();
@@ -12,48 +14,115 @@ export default function VideoUpload() {
       return;
     }
 
+    setStatus("⬆️ Uploading...");
+    setUploadProgress(0); // Reset progress
+    setAnalysisResult(null); // Clear previous results when starting a new upload
+
     const formData = new FormData();
     formData.append("file", file);
 
     try {
-      const res = await fetch("http://localhost:8000/upload", {
-        method: "POST",
-        body: formData,
+      // Use XMLHttpRequest for progress tracking, as fetch API doesn't support it natively for uploads
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "http://localhost:8000/upload");
+
+      // Event listener for upload progress
+      xhr.upload.addEventListener("progress", (event) => {
+        if (event.lengthComputable) {
+          const percentCompleted = Math.round((event.loaded * 100) / event.total);
+          setUploadProgress(percentCompleted);
+        }
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        setStatus(`✅ Uploaded: ${data.filename}`);
-      } else {
-        setStatus("❌ Upload failed");
-      }
+      // Event listener for when the upload is complete (or errors)
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
+          setStatus(`✅ Uploaded and analyzed: ${data.filename}`);
+          setAnalysisResult(data); // Store the full response containing score and suggestions
+        } else {
+          // Attempt to parse error detail from the response
+          const errorData = JSON.parse(xhr.responseText);
+          setStatus(`❌ Upload/Analysis failed: ${errorData.detail || 'Unknown error'}`);
+          setAnalysisResult(null); // Clear results on failure
+        }
+      };
+
+      // Event listener for network errors
+      xhr.onerror = () => {
+        setStatus("❌ Network error or server unreachable");
+        setAnalysisResult(null); // Clear results on network error
+      };
+
+      // Send the FormData
+      xhr.send(formData);
+
     } catch (err) {
-      console.error(err);
+      console.error("Client-side error during upload:", err);
       setStatus("❌ Error uploading file");
+      setAnalysisResult(null); // Clear results on client-side error
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start px-6 pt-[15vh]">
       <div className="bg-white shadow-md rounded-xl p-6 w-full max-w-md">
-        <h2 className="text-2xl font-semibold text-center mb-4">
+        <h2 className="text-2xl font-semibold text-center mb-4 text-gray-800">
           Upload Exercise Video
         </h2>
         <form onSubmit={handleUpload} className="flex flex-col gap-4">
           <input
             type="file"
             accept="video/*"
-            onChange={(e) => setFile(e.target.files[0])}
-            className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+            onChange={(e) => {
+              setFile(e.target.files[0]);
+              setStatus(""); // Clear status when a new file is selected
+              setAnalysisResult(null); // Clear previous results
+            }}
+            className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0
+                       file:text-sm file:font-semibold file:bg-blue-600 file:text-white
+                       hover:file:bg-blue-700 cursor-pointer"
           />
           <button
             type="submit"
-            className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition"
+            disabled={!file} // Disable button if no file is selected
+            className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700
+                       transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Upload
           </button>
         </form>
+
         {status && <p className="mt-4 text-sm text-center text-gray-700">{status}</p>}
+
+        {/* Progress Bar Display */}
+        {status.startsWith("⬆️ Uploading...") && uploadProgress > 0 && (
+          <div className="w-full bg-gray-200 rounded-full h-2.5 mt-4">
+            <div
+              className="bg-blue-500 h-2.5 rounded-full"
+              style={{ width: `${uploadProgress}%` }}
+            ></div>
+            <p className="text-sm text-center text-gray-600 mt-1">{uploadProgress}%</p>
+          </div>
+        )}
+
+        {/* Analysis Results Display */}
+        {analysisResult && (
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <h3 className="text-xl font-semibold text-gray-800 mb-3">Analysis Report:</h3>
+            <p className="text-lg text-gray-700 mb-2">
+              <span className="font-bold">Score:</span> {analysisResult.score}%
+            </p>
+            <div className="text-gray-700">
+              <span className="font-bold">Suggestions for Improvement:</span>
+              <ul className="list-disc list-inside mt-2 space-y-1 text-base">
+                {analysisResult.suggestions.map((s, index) => (
+                  <li key={index}>{s}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
