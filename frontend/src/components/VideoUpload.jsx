@@ -5,6 +5,7 @@ export default function VideoUpload() {
   const [status, setStatus] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0); // For progress bar
   const [analysisResult, setAnalysisResult] = useState(null); // To store score and suggestions
+  const [showRepDetails, setShowRepDetails] = useState(false);
 
   const handleUpload = async (e) => {
     e.preventDefault();
@@ -111,8 +112,9 @@ export default function VideoUpload() {
           <div className="mt-6 pt-4 border-t border-gray-200">
             <h3 className="text-xl font-semibold text-gray-800 mb-3">Analysis Report:</h3>
             <p className="text-lg text-gray-700 mb-2">
-              <span className="font-bold">Score:</span> {analysisResult.score}%
+              <span className="font-bold">Score:</span> {analysisResult.avg_score}%
             </p>
+
             <div className="text-gray-700">
               <span className="font-bold">Suggestions for Improvement:</span>
               <ul className="list-disc list-inside mt-2 space-y-1 text-base">
@@ -120,9 +122,37 @@ export default function VideoUpload() {
                   <li key={index}>{s}</li>
                 ))}
               </ul>
+
+              {/* Collapsible Rep-by-rep breakdown */}
+              {analysisResult.rep_feedback && analysisResult.rep_feedback.length > 0 && (
+                <div className="mt-6">
+                  <button
+                    onClick={() => setShowRepDetails(!showRepDetails)}
+                    className="font-bold text-blue-600 hover:underline focus:outline-none"
+                    aria-expanded={showRepDetails}
+                    aria-controls="rep-breakdown"
+                  >
+                    Rep-by-rep breakdown {showRepDetails ? '▲' : '▼'}
+                  </button>
+
+                  {showRepDetails && (
+                    <ul
+                      id="rep-breakdown"
+                      className="list-decimal list-inside mt-2 space-y-1 text-base text-gray-700"
+                    >
+                      {analysisResult.rep_feedback.map((rep) => (
+                        <ul key={rep.rep_number}>
+                          <strong>Rep {rep.rep_number}:</strong> {rep.score}% — {rep.depth_feedback} | {rep.posture_feedback}
+                        </ul>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}
+
       </div>
     </div>
   );
