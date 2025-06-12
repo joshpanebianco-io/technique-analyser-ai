@@ -29,25 +29,39 @@ export default function VideoUpload() {
 
       // Event listener for upload progress
       xhr.upload.addEventListener("progress", (event) => {
-        if (event.lengthComputable) {
-          const percentCompleted = Math.round((event.loaded * 100) / event.total);
-          setUploadProgress(percentCompleted);
-        }
-      });
+  if (event.lengthComputable) {
+    const percentCompleted = Math.round((event.loaded * 100) / event.total);
+    setUploadProgress(percentCompleted);
+
+    // As soon as upload reaches 100%, assume analysis begins
+    if (percentCompleted === 100) {
+  setTimeout(() => {
+    setStatus("🔍 Analyzing...");
+  }, 1500); // 2-second delay before changing status
+}
+  }
+});
+
 
       // Event listener for when the upload is complete (or errors)
       xhr.onload = () => {
-        if (xhr.status === 200) {
-          const data = JSON.parse(xhr.responseText);
-          setStatus(`✅ Uploaded and analyzed: ${data.filename}`);
-          setAnalysisResult(data); // Store the full response containing score and suggestions
-        } else {
-          // Attempt to parse error detail from the response
-          const errorData = JSON.parse(xhr.responseText);
-          setStatus(`❌ Upload/Analysis failed: ${errorData.detail || 'Unknown error'}`);
-          setAnalysisResult(null); // Clear results on failure
-        }
-      };
+  if (xhr.status === 200) {
+    setStatus("🔍 Analyzing...");
+
+    // Simulate slight wait for UI update (optional)
+    setTimeout(() => {
+      const data = JSON.parse(xhr.responseText);
+      setStatus(`✅ Analysis complete: ${data.filename}`);
+      setAnalysisResult(data);
+    }, 100); // just enough to show the spinner
+  } else {
+    const errorData = JSON.parse(xhr.responseText);
+    setStatus(`❌ Upload/Analysis failed: ${errorData.detail || 'Unknown error'}`);
+    setAnalysisResult(null);
+  }
+};
+
+
 
       // Event listener for network errors
       xhr.onerror = () => {
@@ -95,6 +109,32 @@ export default function VideoUpload() {
         </form>
 
         {status && <p className="mt-4 text-sm text-center text-gray-700">{status}</p>}
+
+        {status.startsWith("🔍 Analysing") && (
+  <div className="flex justify-center items-center mt-4">
+    <div className="relative w-8 h-8">
+      <div className="absolute w-full h-full border-4 border-blue-600 rounded-full animate-spin" style={{ borderTopColor: 'transparent' }}></div>
+      <div className="absolute w-full h-full border-4 border-blue-300 rounded-full animate-spin" style={{ animationDuration: '1.5s', borderBottomColor: 'transparent' }}></div>
+    </div>
+  </div>
+
+
+
+)} 
+
+{/* {status.startsWith("🔍 Analyzing") && (
+  <div className="flex items-center justify-center mt-4 space-x-2">
+    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
+  </div>
+)} */}
+
+
+
+
+
+
 
         {/* Progress Bar Display */}
         {status.startsWith("⬆️ Uploading...") && uploadProgress > 0 && (

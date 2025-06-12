@@ -34,19 +34,25 @@ def calculate_angle_3d(a, b, c):
 
 def knee_score(angle):
     if angle <= 90:
-        return 1.0
-    elif 90 < angle <= 140:
-        return (140 - angle) / 50
+        return 1.0  # Excellent
+    elif 90 < angle <= 110:
+        return 0.7  # Good
+    elif 110 < angle <= 140:
+        return (140 - angle) / 30 * 0.7  # Poor but still partial credit
     else:
-        return 0.0
+        return 0.0  # Too shallow
+
 
 def torso_score(angle):
-    if 70 <= angle <= 110:
-        return 1.0
+    if 80 <= angle <= 100:
+        return 1.0  # Ideal upright posture
+    elif 70 <= angle < 80 or 100 < angle <= 110:
+        return 0.7  # Acceptable posture
     elif angle < 70:
-        return max(0, (angle - 50) / 20)
+        return max(0, (angle - 50) / 20 * 0.7)  # Forward lean penalty
     else:
-        return max(0, (130 - angle) / 20)
+        return 0.0  # Extreme forward lean (unlikely but covered)
+
 
 def depth_feedback(angle):
     if angle <= 90:
@@ -59,13 +65,15 @@ def depth_feedback(angle):
         return "Very shallow squat, bend knees more."
 
 def posture_feedback(angle, side="left"):
-    if 70 <= angle <= 110:
+    if 80 <= angle <= 100:
         return "Great upright torso posture."
-
-    if (side == "left" and angle < 70) or (side != "left" and angle > 110):
+    elif 70 <= angle < 80 or 100 < angle <= 110:
+        return "Good posture, but try to stay a bit more upright."
+    elif angle < 70:
         return "Torso leaning too far forward, try to stay more upright."
+    else:
+        return "Torso position not ideal. Focus on keeping your chest up."
 
-    return "Torso leaning forward, keep chest up."
 
 
 
