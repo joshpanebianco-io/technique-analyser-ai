@@ -22,6 +22,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 mp_pose = mp.solutions.pose
 
+
 def calculate_angle_3d(a, b, c):
     a = np.array(a[:3])
     b = np.array(b[:3])
@@ -31,6 +32,7 @@ def calculate_angle_3d(a, b, c):
     cosine_angle = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc) + 1e-8)
     angle = np.arccos(np.clip(cosine_angle, -1.0, 1.0))
     return math.degrees(angle)
+
 
 def knee_score(angle):
     if angle <= 90:
@@ -64,6 +66,7 @@ def depth_feedback(angle):
     else:
         return "Very shallow squat, bend knees more."
 
+
 def posture_feedback(angle, side="left"):
     if 80 <= angle <= 100:
         return "Great upright torso posture."
@@ -73,8 +76,6 @@ def posture_feedback(angle, side="left"):
         return "Torso leaning too far forward, try to stay more upright."
     else:
         return "Torso position not ideal. Focus on keeping your chest up."
-
-
 
 
 def extract_pose_landmarks(video_path: str):
@@ -100,6 +101,7 @@ def extract_pose_landmarks(video_path: str):
     cap.release()
     pose.close()
     return all_landmarks
+
 
 def analyze_landmarks(landmarks: list):
     if not landmarks or all(l is None for l in landmarks):
@@ -229,9 +231,11 @@ def analyze_landmarks(landmarks: list):
         "suggestions": suggestions,
     }
 
+
 @app.get("/")
 def read_root():
     return {"message": "FastAPI is running!"}
+
 
 @app.post("/upload")
 async def upload_video(file: UploadFile = File(...)):

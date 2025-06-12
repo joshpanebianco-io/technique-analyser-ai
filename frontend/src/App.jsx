@@ -7,8 +7,8 @@ import VideoUpload from "./components/VideoUpload";
 function App() {
   return (
     <div className="bg-gray-100">
-      <header className="text-center py-6">
-        <h1 className="text-3xl font-bold text-gray-800">Technique Analyser AI</h1>
+      <header className="text-center py-10">
+        <h1 className="text-3xl font-bold text-gray-800 -mb-10">Technique Analyser AI</h1>
       </header>
       <VideoUpload />
     </div>
