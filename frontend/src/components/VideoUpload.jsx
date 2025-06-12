@@ -37,7 +37,7 @@ export default function VideoUpload() {
           if (percentCompleted === 100) {
             setTimeout(() => {
               setStatus("🔍 Analysing...");
-            }, 1500); // 2-second delay before changing status
+            }, 1300);
           }
         }
       });

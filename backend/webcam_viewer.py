@@ -23,12 +23,12 @@ def knee_score(angle):
         return 0.0
 
 def torso_score(angle):
-    if 70 <= angle <= 110:
+    if 75 <= angle <= 105:
         return 1.0
-    elif angle < 70:
-        return max(0, (angle - 50) / 20)
+    elif angle < 75:
+        return max(0, (angle - 50) / 25)
     else:
-        return max(0, (130 - angle) / 20)
+        return max(0, (130 - angle) / 25)
 
 def depth_feedback(angle):
     if angle <= 90:
@@ -41,9 +41,9 @@ def depth_feedback(angle):
         return "Very shallow squat, bend knees more."
 
 def posture_feedback(angle, side="left"):
-    if 70 <= angle <= 110:
+    if 75 <= angle <= 105:
         return "Great upright torso posture."
-    if (side == "left" and angle < 70) or (side != "left" and angle > 110):
+    if (side == "left" and angle < 75) or (side != "left" and angle > 105):
         return "Torso leaning too far forward, try to stay more upright."
     return "Torso leaning forward, keep chest up."
 
@@ -130,7 +130,6 @@ def main():
                         bottom_reached = False
                         min_knee_angle = 180
 
-                    # Debug visuals
                     cv2.putText(frame, f"Knee: {knee_angle:.1f}", (10, 30),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
                     cv2.putText(frame, f"Torso: {torso_angle:.1f}", (10, 55),
@@ -157,7 +156,6 @@ def main():
         cap.release()
         cv2.destroyAllWindows()
 
-        # Final summary
         print("\n--- Squat Set Summary ---")
         print(f"Total reps: {rep_count}")
         if rep_scores:

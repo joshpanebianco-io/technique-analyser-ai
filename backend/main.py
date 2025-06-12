@@ -46,14 +46,15 @@ def knee_score(angle):
 
 
 def torso_score(angle):
-    if 80 <= angle <= 100:
+    if 75 <= angle <= 105:  # was 80–100
         return 1.0  # Ideal upright posture
-    elif 70 <= angle < 80 or 100 < angle <= 110:
+    elif 70 <= angle < 75 or 105 < angle <= 110:
         return 0.7  # Acceptable posture
     elif angle < 70:
         return max(0, (angle - 50) / 20 * 0.7)  # Forward lean penalty
     else:
         return 0.0  # Extreme forward lean (unlikely but covered)
+
 
 
 def depth_feedback(angle):
@@ -68,14 +69,15 @@ def depth_feedback(angle):
 
 
 def posture_feedback(angle, side="left"):
-    if 80 <= angle <= 100:
+    if 75 <= angle <= 105:  # was 80–100
         return "Great upright torso posture."
-    elif 70 <= angle < 80 or 100 < angle <= 110:
+    elif 70 <= angle < 75 or 105 < angle <= 110:
         return "Good posture, but try to stay a bit more upright."
     elif angle < 70:
         return "Torso leaning too far forward, try to stay more upright."
     else:
         return "Torso position not ideal. Focus on keeping your chest up."
+
 
 
 def extract_pose_landmarks(video_path: str):
