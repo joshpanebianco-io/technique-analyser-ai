@@ -35,51 +35,55 @@ def calculate_angle_3d(a, b, c):
 
 
 def knee_score(angle):
-    if angle <= 95:  # Was 90 — expanded by 5 degrees
+    if angle <= 90:
         return 1.0  # Excellent depth
-    elif 95 < angle <= 110:
-        return 0.7  # Good depth
-    elif 110 < angle <= 140:
-        return max(0.3, (140 - angle) / 25 * 0.7)  # Gradual decline
+    elif angle <= 105:
+        return 0.8  # Good
+    elif angle <= 120:
+        return 0.5  # Fair
+    elif angle <= 135:
+        return 0.2  # Poor
     else:
         return 0.0  # Too shallow
 
 
 def torso_score(angle):
-    if 70 <= angle <= 110:  # Was 75–105 — expanded by 5° on each end
-        return 1.0  # Ideal upright posture
-    elif 65 <= angle < 70 or 110 < angle <= 115:
-        return 0.8  # Slight lean, still acceptable
-    elif angle < 65:
-        return max(0.3, (angle - 60) / 5 * 0.5)  # Forward lean penalty
+    if angle < 25:
+        return 1.0  # Excellent posture
+    elif angle < 40:
+        return 0.8  # Good posture
+    elif angle < 55:
+        return 0.5  # Noticeable lean
+    elif angle < 70:
+        return 0.2  # Excessive lean
     else:
-        return 0.0  # Severe backward lean
+        return 0.0  # Likely bad posture or missing torso detection
 
 
 def depth_feedback(angle):
-    if angle <= 95:  # Matches revised "Excellent" threshold
+    if angle <= 90:
         return "Excellent squat depth!"
-    elif angle <= 110:
-        return "Decent depth — just a little more and it’s perfect."
-    elif angle <= 115:
-        return "Need more depth — keep working toward deeper range."
-    elif angle <= 130:
-        return "Shallow — need to go much deeper."
+    elif angle <= 105:
+        return "Good depth — just a little deeper for perfection."
+    elif angle <= 120:
+        return "Fair depth — work on reaching parallel."
+    elif angle <= 135:
+        return "Shallow — aim to lower yourself more."
     else:
-        return "Too shallow — try to sit lower into the squat."
+        return "Too shallow — bend your knees further and sit deeper."
 
 
 def posture_feedback(angle, side="left"):
-    if 70 <= angle <= 110:  # Matches revised "Excellent" range
+    if angle < 25:
         return "Excellent upright torso posture."
-    elif 65 <= angle < 70 or 110 < angle <= 115:
-        return "Good posture — just a slight adjustment needed."
-    elif angle < 65:
-        return "Torso leaning too far forward — keep your chest up."
+    elif angle < 40:
+        return "Good posture — aim to stay tall and balanced."
+    elif angle < 55:
+        return "Torso leaning forward — lift your chest and brace your core."
+    elif angle < 70:
+        return "Excessive forward lean — focus on staying upright throughout the squat."
     else:
-        return "It's supposed to be a squat, not a good morning."
-
-
+        return "Severe torso angle — posture likely needs significant correction or visibility may be poor."
 
 
 
@@ -106,6 +110,19 @@ def extract_pose_landmarks(video_path: str):
     cap.release()
     pose.close()
     return all_landmarks
+
+def calculate_torso_angle(shoulder, hip):
+    # Vector from hip to shoulder
+    torso_vector = np.array(shoulder[:3]) - np.array(hip[:3])
+
+    # Reference vertical vector (pointing straight up in Y direction)
+    vertical_vector = np.array([0, -1, 0])  # -Y because in image coordinates, down is positive
+
+    # Calculate angle between torso and vertical
+    cosine_angle = np.dot(torso_vector, vertical_vector) / (np.linalg.norm(torso_vector) + 1e-8)
+    angle = np.arccos(np.clip(cosine_angle, -1.0, 1.0))
+    return math.degrees(angle)
+
 
 
 def analyze_landmarks(landmarks: list):
@@ -171,7 +188,8 @@ def analyze_landmarks(landmarks: list):
             continue
 
         knee_angle = calculate_angle_3d(hip, knee, ankle)
-        torso_angle = calculate_angle_3d(shoulder, hip, knee)
+        torso_angle = calculate_torso_angle(shoulder, hip)
+
 
         if not rep_in_progress:
             if knee_angle < DEPTH_TRIGGER:
