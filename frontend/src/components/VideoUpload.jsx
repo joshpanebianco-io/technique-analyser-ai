@@ -76,7 +76,7 @@ export default function VideoUpload() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start px-6 pt-[15vh]">
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start px-6 pt-[3vh]">
       <div className="bg-white shadow-md rounded-xl p-6 w-full max-w-md">
         <h2 className="text-2xl font-semibold text-center mb-4 text-gray-800">
           Upload Exercise Video
@@ -151,9 +151,9 @@ export default function VideoUpload() {
             </p>
 
             <div className="text-gray-700">
-              <span className="font-bold">Suggestions for Improvement:</span>
+              <span className="font-bold">Set Feedback:</span>
               <ul className="list-disc list-inside mt-2 space-y-1 text-base">
-                {analysisResult.suggestions.map((s, index) => (
+                {analysisResult.set_feedback.map((s, index) => (
                   <li key={index}>{s}</li>
                 ))}
               </ul>
@@ -171,17 +171,18 @@ export default function VideoUpload() {
                   </button>
 
                   {showRepDetails && (
-                    <ul
+                    <div
                       id="rep-breakdown"
-                      className="list-decimal list-inside mt-2 space-y-1 text-base text-gray-700"
+                      className={`mt-2 space-y-1 text-base text-gray-700 ${
+                        analysisResult.rep_feedback.length >= 6 ? "max-h-60 overflow-y-auto pr-2" : ""
+                      }`}
                     >
                       {analysisResult.rep_feedback.map((rep) => (
-                        <ul key={rep.rep_number}>
-                          <strong>Rep {rep.rep_number}:</strong> {rep.score}% — {rep.depth_feedback} |{" "}
-                          {rep.posture_feedback}
-                        </ul>
+                        <div key={rep.rep_number}>
+                          <strong>Rep {rep.rep_number}:</strong> {rep.score}% — {rep.depth_feedback} | {rep.posture_feedback}
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   )}
                 </div>
               )}

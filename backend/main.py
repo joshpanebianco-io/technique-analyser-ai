@@ -35,48 +35,51 @@ def calculate_angle_3d(a, b, c):
 
 
 def knee_score(angle):
-    if angle <= 90:
-        return 1.0  # Excellent
-    elif 90 < angle <= 110:
-        return 0.7  # Good
+    if angle <= 95:  # Was 90 — expanded by 5 degrees
+        return 1.0  # Excellent depth
+    elif 95 < angle <= 110:
+        return 0.7  # Good depth
     elif 110 < angle <= 140:
-        return (140 - angle) / 30 * 0.7  # Poor but still partial credit
+        return max(0.3, (140 - angle) / 25 * 0.7)  # Gradual decline
     else:
         return 0.0  # Too shallow
 
 
 def torso_score(angle):
-    if 75 <= angle <= 105:  # was 80–100
+    if 70 <= angle <= 110:  # Was 75–105 — expanded by 5° on each end
         return 1.0  # Ideal upright posture
-    elif 70 <= angle < 75 or 105 < angle <= 110:
-        return 0.7  # Acceptable posture
-    elif angle < 70:
-        return max(0, (angle - 50) / 20 * 0.7)  # Forward lean penalty
+    elif 65 <= angle < 70 or 110 < angle <= 115:
+        return 0.8  # Slight lean, still acceptable
+    elif angle < 65:
+        return max(0.3, (angle - 60) / 5 * 0.5)  # Forward lean penalty
     else:
-        return 0.0  # Extreme forward lean (unlikely but covered)
-
+        return 0.0  # Severe backward lean
 
 
 def depth_feedback(angle):
-    if angle <= 90:
-        return "Excellent depth!"
+    if angle <= 95:  # Matches revised "Excellent" threshold
+        return "Excellent squat depth!"
     elif angle <= 110:
-        return "Good depth, try to go a bit lower."
+        return "Decent depth — just a little more and it’s perfect."
+    elif angle <= 115:
+        return "Need more depth — keep working toward deeper range."
     elif angle <= 130:
-        return "Shallow squat, aim for deeper bend."
+        return "Shallow — need to go much deeper."
     else:
-        return "Very shallow squat, bend knees more."
+        return "Too shallow — try to sit lower into the squat."
 
 
 def posture_feedback(angle, side="left"):
-    if 75 <= angle <= 105:  # was 80–100
-        return "Great upright torso posture."
-    elif 70 <= angle < 75 or 105 < angle <= 110:
-        return "Good posture, but try to stay a bit more upright."
-    elif angle < 70:
-        return "Torso leaning too far forward, try to stay more upright."
+    if 70 <= angle <= 110:  # Matches revised "Excellent" range
+        return "Excellent upright torso posture."
+    elif 65 <= angle < 70 or 110 < angle <= 115:
+        return "Good posture — just a slight adjustment needed."
+    elif angle < 65:
+        return "Torso leaning too far forward — keep your chest up."
     else:
-        return "Torso position not ideal. Focus on keeping your chest up."
+        return "It's supposed to be a squat, not a good morning."
+
+
 
 
 
@@ -111,7 +114,7 @@ def analyze_landmarks(landmarks: list):
             "rep_count": 0,
             "avg_score": 0,
             "rep_feedback": [],
-            "suggestions": ["No landmarks extracted. Please try re-recording."]
+            "set_feedback": ["No landmarks extracted. Please try re-recording."]
         }
 
     mp_indices = mp_pose.PoseLandmark
@@ -212,25 +215,37 @@ def analyze_landmarks(landmarks: list):
     avg_knee = np.mean([r["min_knee_angle"] for r in rep_feedback]) if rep_feedback else 180
     avg_torso = np.mean([r["avg_torso_angle"] for r in rep_feedback]) if rep_feedback else 90
 
-    suggestions = []
+    set_feedback = []
     if overall_avg_score == 0:
-        suggestions.append("No valid reps detected. Try recording a clearer squat video.")
+        set_feedback.append("❌ No valid squats detected — please ensure you're visible and your form is clear in the video.")
     else:
-        if np.mean([knee_score(r["min_knee_angle"]) for r in rep_feedback]) < 0.7:
-            suggestions.append("Try to squat deeper (bend your knees more).")
-        else:
-            suggestions.append("Good depth in your squat!")
+        avg_knee_score = np.mean([knee_score(r["min_knee_angle"]) for r in rep_feedback])
+        avg_torso_score = np.mean([torso_score(r["avg_torso_angle"]) for r in rep_feedback])
 
-        if np.mean([torso_score(r["avg_torso_angle"]) for r in rep_feedback]) < 0.7:
-            suggestions.append("Keep your torso more upright during the squat.")
+        if avg_knee_score >= 0.9:
+            set_feedback.append("✅ Excellent squat depth across the set — great job hitting depth!")
+        elif avg_knee_score >= 0.7:
+            set_feedback.append("👍 Good depth overall, but aim to consistently reach parallel or slightly below.")
+        elif avg_knee_score >= 0.4:
+            set_feedback.append("⚠️ Some reps were too shallow — try to bend your knees more to reach proper depth.")
         else:
-            suggestions.append("Nice upright posture!")
+            set_feedback.append("❗ Most reps lacked depth. Focus on sitting back and lowering yourself more into the squat.")
+
+        if avg_torso_score >= 0.9:
+            set_feedback.append("✅ Fantastic torso posture — you maintained an upright position throughout.")
+        elif avg_torso_score >= 0.7:
+            set_feedback.append("👍 Decent posture overall, but keep working on staying more upright during the descent.")
+        elif avg_torso_score >= 0.4:
+            set_feedback.append("⚠️ There was noticeable forward lean — keep your chest up and engage your core.")
+        else:
+            set_feedback.append("❗ Excessive torso lean in most reps — work on mobility and torso control to avoid tipping forward.")
+
 
     return {
         "rep_count": rep_count,
         "avg_score": overall_avg_score,
         "rep_feedback": rep_feedback,
-        "suggestions": suggestions,
+        "set_feedback": set_feedback,
     }
 
 
