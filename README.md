@@ -65,12 +65,15 @@ cd backend
 pip install -r requirements.txt
 uvicorn main:app --reload
 
-### 📸 Screenshots
+---
+
+## 📸 Screenshots
 
 Here’s a preview of the app in action:
 
 ### Upload
 ![Upload](screenshots/upload-progress.png)
+
 
 
 
