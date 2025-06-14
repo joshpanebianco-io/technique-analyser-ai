@@ -1,18 +1,16 @@
 # 🏋️‍♂️ Technique Analyser AI
 
-An AI-powered web app that analyzes your **squat technique** from a video and provides a score along with rep-by-rep feedback on key biomechanics like **depth**, **knee angle**, and **torso positioning**.
+An AI-powered web app that analyses your **squat technique** from a video and provides a score along with rep-by-rep feedback on key biomechanics like **depth**, **knee angle**, and **torso positioning**.
 
-📤 Upload your set → 🔍 Let the model analyze → ✅ Get your score and suggestions!
+📤 Upload video of your set → 🔍 Let the model analyse → ✅ Get your score and suggestions!
 
 🔗 **Live App**: [https://joshpanebianco-io.github.io/technique-analyser-ai/](https://joshpanebianco-io.github.io/technique-analyser-ai/)
-
-🧠 **API Endpoint**: [https://technique-analyser-api.onrender.com/upload](https://technique-analyser-api.onrender.com/upload)
 
 ---
 
 ## 🚀 Tech Stack
 
-### 🧠 Backend (AI Model)
+### 🧠 Backend
 
 - **FastAPI** — lightweight and fast web framework for Python
 - **MediaPipe** — pose detection and landmark tracking
@@ -30,10 +28,10 @@ An AI-powered web app that analyzes your **squat technique** from a video and pr
 
 ## 🎯 Objectives
 
-- Gain practical experience working with **pose estimation models**
+- Gain practical experience working with **pose estimation & AI models**
 - Use **MediaPipe** to extract biomechanical insights
-- Understand how to build and deploy fullstack AI apps using **FastAPI** and **React**
-- Practice deploying on **Render** (API) and **GitHub Pages** (Frontend)
+- Understand how to build and deploy fullstack AI apps using **Python (FastAPI)** and **React**
+- Experience deploying on **Render** (API) and **GitHub Pages** (Frontend)
 
 ---
 
@@ -52,8 +50,9 @@ An AI-powered web app that analyzes your **squat technique** from a video and pr
 ## 📱 Mobile Experience
 
 - Mobile-responsive upload form
+- Upload videos from mobile library
 - Smooth UI animations during upload and analysis
-- Collapsible rep-by-rep breakdown for better UX on smaller screens
+- Collapsible and scrollable rep-by-rep breakdown for better UX on smaller screens
 
 ---
 
