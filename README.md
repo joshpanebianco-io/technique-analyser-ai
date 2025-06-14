@@ -47,6 +47,15 @@ An AI-powered web app that analyses your **squat technique** from a video and pr
 
 ---
 
+## 📸 Screenshots
+
+Here’s a preview of the app in action:
+
+### Upload
+![Upload](screenshots/upload-progress.png)
+
+---
+
 ## 📱 Mobile Experience
 
 - Mobile-responsive upload form
@@ -67,12 +76,7 @@ uvicorn main:app --reload
 
 ---
 
-## 📸 Screenshots
 
-Here’s a preview of the app in action:
-
-### Upload
-![Upload](screenshots/upload-progress.png)
 
 
 
