@@ -64,3 +64,13 @@ An AI-powered web app that analyses your **squat technique** from a video and pr
 cd backend
 pip install -r requirements.txt
 uvicorn main:app --reload
+
+## 📸 Screenshots
+
+Here’s a preview of the app in action:
+
+### Upload
+![Upload](screenshots/upload-progress.png)
+
+
+
