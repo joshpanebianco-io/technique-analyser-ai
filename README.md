@@ -61,7 +61,7 @@ An AI-powered web app that analyses your **squat technique** from a video and pr
 Here’s a preview of the app in action:
 
 ### Upload
-![Upload](screenshots/upload-progress.png)
+<img src="screenshots/upload-progress.png" alt="Upload Page" width="600"/>
 
 ---
 
