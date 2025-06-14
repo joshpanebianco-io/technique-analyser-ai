@@ -25,7 +25,8 @@ export default function VideoUpload() {
     try {
       // Use XMLHttpRequest for progress tracking, as fetch API doesn't support it natively for uploads
       const xhr = new XMLHttpRequest();
-      xhr.open("POST", "http://localhost:8000/upload");
+      // xhr.open("POST", "http://localhost:8000/upload");
+      xhr.open("POST", "https://technique-analyser-api.onrender.com/upload");
 
       // Event listener for upload progress
       xhr.upload.addEventListener("progress", (event) => {
