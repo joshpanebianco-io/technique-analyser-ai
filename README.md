@@ -64,7 +64,7 @@ Here’s a preview of the app in action:
   <img src="screenshots/upload-progress.png" alt="Upload" width="300"/>
   <img src="screenshots/analysing.png" alt="Analysing" width="300"/>
   <img src="screenshots/set-analysis.png" alt="Analysis" width="300"/>
-  <img src="screenshots/rep-by-reps.png" alt="Results" width="300"/>
+  <img src="screenshots/rep-by-rep.png" alt="Results" width="300"/>
 </p>
 
 ---
