@@ -244,16 +244,16 @@ def analyze_landmarks(landmarks: list):
         if avg_knee_score >= 0.9:
             set_feedback.append("✅ Excellent squat depth across the set — great job hitting depth!")
         elif avg_knee_score >= 0.7:
-            set_feedback.append("👍 Good depth overall, but aim to consistently reach parallel or slightly below.")
+            set_feedback.append("👍 Okay depth overall, but aim to consistently reach parallel or slightly below.")
         elif avg_knee_score >= 0.4:
-            set_feedback.append("⚠️ Some reps were too shallow — try to bend your knees more to reach proper depth.")
+            set_feedback.append("⚠️ Some reps were too shallow — try to go deeper to reach proper depth.")
         else:
             set_feedback.append("❗ Most reps lacked depth. Focus on sitting back and lowering yourself more into the squat.")
 
         if avg_torso_score >= 0.9:
             set_feedback.append("✅ Fantastic torso posture — you maintained an upright position throughout.")
         elif avg_torso_score >= 0.7:
-            set_feedback.append("👍 Decent posture overall, but keep working on staying more upright during the descent.")
+            set_feedback.append("👍 Decent posture overall, but keep working on staying more upright during the ascent.")
         elif avg_torso_score >= 0.4:
             set_feedback.append("⚠️ There was noticeable forward lean — keep your chest up and engage your core.")
         else:
