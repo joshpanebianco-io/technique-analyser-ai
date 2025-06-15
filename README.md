@@ -2,7 +2,7 @@
 
 An AI-powered web app that analyses your **squat technique** from a video and provides a score along with rep-by-rep feedback on key biomechanics like **depth**, **knee angle**, and **torso positioning**. (Video must be from a side on angle)
 
-📤 Upload video of your set → 🔍 Let the model analyse → ✅ Get your score and suggestions!
+📤 Upload video of your set → 🔍 Let the model analyse → ✅ Get your score and feedback!
 
 🔗 **Live App**: [https://joshpanebianco-io.github.io/technique-analyser-ai/](https://joshpanebianco-io.github.io/technique-analyser-ai/)
 
