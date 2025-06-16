@@ -50,7 +50,7 @@ An AI-powered web app that analyses your **squat technique** from a video and pr
 ## 📱 Mobile Experience
 
 - Mobile-responsive upload form
-- Upload videos from mobile photo library, files or record a video.
+- Upload videos from mobile photo library, files or record a video
 - Smooth UI animations during upload and analysis
 - Collapsible and scrollable rep-by-rep breakdown for better UX on smaller screens
 
