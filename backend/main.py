@@ -36,39 +36,55 @@ def calculate_angle_3d(a, b, c):
 
 
 def knee_score(angle):
-    if angle <= 90:
-        return 1.0  # Excellent depth
-    elif angle <= 105:
-        return 0.8  # Good
-    elif angle <= 120:
-        return 0.5  # Fair
-    elif angle <= 135:
-        return 0.2  # Poor
+    if angle <= 85:       # stricter - excellent depth requires deeper squat
+        return 1.0
+    elif angle <= 100:
+        return 0.8
+    elif angle <= 115:
+        return 0.5
+    elif angle <= 130:
+        return 0.2
     else:
-        return 0.0  # Too shallow
+        return 0.0
 
 
 def torso_score(angle):
-    if angle < 25:
-        return 1.0  # Excellent posture
+    if angle < 25:        # stricter - upright torso more demanding
+        return 1.0
     elif angle < 40:
-        return 0.8  # Good posture
+        return 0.8
     elif angle < 55:
-        return 0.5  # Noticeable lean
+        return 0.5
     elif angle < 70:
-        return 0.2  # Excessive lean
+        return 0.2
     else:
-        return 0.0  # Likely bad posture or missing torso detection
+        return 0.0
+    
+
+def hip_rise_score(ratio):
+    if ratio <= 2.5:      # was 2.1 → increased
+        return 1.0
+    elif ratio <= 3.3:    # was 2.9 → increased
+        return 0.8
+    elif ratio <= 4.0:    # was 3.5 → increased
+        return 0.5
+    elif ratio <= 5.0:    # was 4.5 → increased
+        return 0.2
+    else:
+        return 0.0
+
+
+
 
 
 def depth_feedback(angle):
-    if angle <= 90:
+    if angle <= 85:
         return "Excellent squat depth!"
-    elif angle <= 105:
+    elif angle <= 100:
         return "Good depth — just a little deeper for perfection."
-    elif angle <= 120:
+    elif angle <= 115:
         return "Fair depth — work on reaching parallel."
-    elif angle <= 135:
+    elif angle <= 130:
         return "Shallow — aim to lower yourself more."
     else:
         return "Too shallow — bend your knees further and sit deeper."
@@ -87,6 +103,20 @@ def posture_feedback(angle, side="left"):
         return "Severe torso angle — posture likely needs significant correction or visibility may be poor."
 
 
+def hip_rise_feedback(ratio):
+    if ratio <= 2.5:
+        return "Excellent coordination between hips and shoulders."
+    elif ratio <= 3.3:
+        return "Slight early hip rise — try to keep hips and shoulders rising together."
+    elif ratio <= 4.0:
+        return "Moderate hip rise — maintain a stronger back and brace more during the ascent."
+    elif ratio <= 5.0:
+        return "Noticeable hip shooting — work on quad strength and maintaining a vertical back."
+    else:
+        return "Excessive early hip rise — likely compensation due to weak quads or poor bracing."
+
+
+    
 
 def extract_pose_landmarks(video_path: str):
     cap = cv2.VideoCapture(video_path)
@@ -124,6 +154,23 @@ def calculate_torso_angle(shoulder, hip):
     angle = np.arccos(np.clip(cosine_angle, -1.0, 1.0))
     return math.degrees(angle)
 
+def calculate_hip_rise_ratio(hip_y_series, shoulder_y_series):
+    """
+    Calculates the ratio of hip rise to shoulder rise during the ascent phase.
+    This helps detect early hip shooting up from the bottom of a squat.
+    Positive rise = moving up (decreasing Y value).
+    """
+    if not hip_y_series or not shoulder_y_series:
+        return float("inf")
+
+    hip_rise = hip_y_series[0] - hip_y_series[-1]
+    shoulder_rise = shoulder_y_series[0] - shoulder_y_series[-1]
+
+    # Handle both rise and fall directions
+    if shoulder_rise == 0:
+        return float("inf")
+
+    return abs(hip_rise) / abs(shoulder_rise + 1e-5)
 
 
 def analyze_landmarks(landmarks: list):
@@ -136,16 +183,8 @@ def analyze_landmarks(landmarks: list):
         }
 
     mp_indices = mp_pose.PoseLandmark
-
-    # Decide left or right based on visibility
-    left_valid = sum(
-        1 for f in landmarks
-        if f and f[mp_indices.LEFT_KNEE.value][3] > 0.5
-    )
-    right_valid = sum(
-        1 for f in landmarks
-        if f and f[mp_indices.RIGHT_KNEE.value][3] > 0.5
-    )
+    left_valid = sum(1 for f in landmarks if f and f[mp_indices.LEFT_KNEE.value][3] > 0.5)
+    right_valid = sum(1 for f in landmarks if f and f[mp_indices.RIGHT_KNEE.value][3] > 0.5)
     preferred_side = "left" if left_valid >= right_valid else "right"
 
     def get_side_landmarks(frame, side="left"):
@@ -160,7 +199,6 @@ def analyze_landmarks(landmarks: list):
                 knee = frame[mp_indices.RIGHT_KNEE.value]
                 ankle = frame[mp_indices.RIGHT_ANKLE.value]
                 shoulder = frame[mp_indices.RIGHT_SHOULDER.value]
-
             if hip[3] < 0.5 or knee[3] < 0.5 or ankle[3] < 0.5 or shoulder[3] < 0.5:
                 return None, None, None, None
             return hip, knee, ankle, shoulder
@@ -169,20 +207,29 @@ def analyze_landmarks(landmarks: list):
 
     rep_count = 0
     rep_feedback = []
-
     rep_in_progress = False
     bottom_reached = False
     min_knee_angle = 180
     rep_min_knee_angles = []
     rep_torso_angles = []
+    rep_hip_y = []
+    rep_shoulder_y = []
 
     DEPTH_TRIGGER = 140
     STAND_THRESHOLD = 160
     MIN_REP_RANGE = 20
+    
+    skip_rate = 2  # ← SKIP every 2nd frame (adjust if needed)
 
-    for frame in landmarks:
+    for i, frame in enumerate(landmarks):
+        if i % skip_rate != 0:
+            continue
         if frame is None:
             continue
+
+    # for frame in landmarks:
+    #     if frame is None:
+    #         continue
 
         hip, knee, ankle, shoulder = get_side_landmarks(frame, preferred_side)
         if None in [hip, knee, ankle, shoulder]:
@@ -191,7 +238,6 @@ def analyze_landmarks(landmarks: list):
         knee_angle = calculate_angle_3d(hip, knee, ankle)
         torso_angle = calculate_torso_angle(shoulder, hip)
 
-
         if not rep_in_progress:
             if knee_angle < DEPTH_TRIGGER:
                 rep_in_progress = True
@@ -199,20 +245,25 @@ def analyze_landmarks(landmarks: list):
                 min_knee_angle = knee_angle
                 rep_min_knee_angles = [knee_angle]
                 rep_torso_angles = [torso_angle]
+                rep_hip_y = [hip[1]]
+                rep_shoulder_y = [shoulder[1]]
         else:
             rep_min_knee_angles.append(knee_angle)
             rep_torso_angles.append(torso_angle)
+            rep_hip_y.append(hip[1])
+            rep_shoulder_y.append(shoulder[1])
             if knee_angle < min_knee_angle:
                 min_knee_angle = knee_angle
-
             if not bottom_reached and knee_angle > min_knee_angle + 2:
                 bottom_reached = True
-
             if bottom_reached and knee_angle > STAND_THRESHOLD:
                 if (STAND_THRESHOLD - min_knee_angle) >= MIN_REP_RANGE:
                     ks = knee_score(min_knee_angle)
                     ts = np.mean([torso_score(a) for a in rep_torso_angles])
-                    rep_score = (ks * 0.6 + ts * 0.4) * 100
+                    rise_ratio = calculate_hip_rise_ratio(rep_hip_y, rep_shoulder_y)
+                    hrs = hip_rise_score(rise_ratio)
+
+                    rep_score = (ks * 0.5 + ts * 0.3 + hrs * 0.2) * 100
                     rep_count += 1
 
                     rep_feedback.append({
@@ -220,27 +271,28 @@ def analyze_landmarks(landmarks: list):
                         "score": round(rep_score),
                         "min_knee_angle": round(min_knee_angle, 1),
                         "avg_torso_angle": round(np.mean(rep_torso_angles), 1),
+                        "hip_rise_ratio": round(rise_ratio, 2),
                         "depth_feedback": depth_feedback(min_knee_angle),
-                        "posture_feedback": posture_feedback(np.mean(rep_torso_angles), preferred_side)
+                        "posture_feedback": posture_feedback(np.mean(rep_torso_angles), preferred_side),
+                        "hip_rise_feedback": hip_rise_feedback(rise_ratio)
                     })
-
                 rep_in_progress = False
                 bottom_reached = False
                 min_knee_angle = 180
                 rep_min_knee_angles = []
                 rep_torso_angles = []
+                rep_hip_y = []
+                rep_shoulder_y = []
 
     overall_avg_score = round(np.mean([r["score"] for r in rep_feedback])) if rep_feedback else 0
-    avg_knee = np.mean([r["min_knee_angle"] for r in rep_feedback]) if rep_feedback else 180
-    avg_torso = np.mean([r["avg_torso_angle"] for r in rep_feedback]) if rep_feedback else 90
+    avg_knee_score = np.mean([knee_score(r["min_knee_angle"]) for r in rep_feedback]) if rep_feedback else 0
+    avg_torso_score = np.mean([torso_score(r["avg_torso_angle"]) for r in rep_feedback]) if rep_feedback else 0
+    avg_hip_rise_score = np.mean([hip_rise_score(r["hip_rise_ratio"]) for r in rep_feedback]) if rep_feedback else 0
 
     set_feedback = []
     if overall_avg_score == 0:
         set_feedback.append("❌ No valid squats detected — please ensure you're visible and your form is clear in the video.")
     else:
-        avg_knee_score = np.mean([knee_score(r["min_knee_angle"]) for r in rep_feedback])
-        avg_torso_score = np.mean([torso_score(r["avg_torso_angle"]) for r in rep_feedback])
-
         if avg_knee_score >= 0.9:
             set_feedback.append("✅ Excellent squat depth across the set — great job hitting depth!")
         elif avg_knee_score >= 0.7:
@@ -259,13 +311,22 @@ def analyze_landmarks(landmarks: list):
         else:
             set_feedback.append("❗ Excessive torso lean in most reps — work on mobility and torso control to avoid tipping forward.")
 
+        if avg_hip_rise_score >= 0.9:
+            set_feedback.append("✅ Hips and shoulders moved together smoothly during the ascent — great control!")
+        elif avg_hip_rise_score >= 0.7:
+            set_feedback.append("👍 Good control of ascent, but occasionally hips rose too quickly.")
+        elif avg_hip_rise_score >= 0.4:
+            set_feedback.append("⚠️ Hips often shot up before shoulders — work on maintaining alignment during the rise.")
+        else:
+            set_feedback.append("❗ Frequent early hip rise — improve coordination and strengthen your quads to fix this.")
 
     return {
         "rep_count": rep_count,
         "avg_score": overall_avg_score,
         "rep_feedback": rep_feedback,
-        "set_feedback": set_feedback,
+        "set_feedback": set_feedback
     }
+
 
 
 @app.get("/")

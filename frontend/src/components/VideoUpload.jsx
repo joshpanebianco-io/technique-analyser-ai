@@ -25,7 +25,7 @@ export default function VideoUpload() {
     try {
       // Use XMLHttpRequest for progress tracking, as fetch API doesn't support it natively for uploads
       const xhr = new XMLHttpRequest();
-      // xhr.open("POST", "http://localhost:8000/upload");
+       //xhr.open("POST", "http://localhost:8000/upload");
       xhr.open("POST", "https://technique-analyser-api.onrender.com/upload");
 
       // Event listener for upload progress
@@ -179,9 +179,14 @@ export default function VideoUpload() {
                       }`}
                     >
                       {analysisResult.rep_feedback.map((rep) => (
-                        <div key={rep.rep_number}>
-                          <strong>Rep {rep.rep_number}:</strong> {rep.score}% — {rep.depth_feedback} | {rep.posture_feedback}
-                        </div>
+                        <div key={rep.rep_number} className="mb-2 p-2 border rounded bg-gray-50">
+                          <strong>Rep {rep.rep_number}:</strong> <span>{rep.score}%</span>
+                          <div className="mt-1 text-sm text-gray-600">
+                            <div><strong>Depth:</strong> {rep.depth_feedback}</div>
+                            <div><strong>Posture:</strong> {rep.posture_feedback}</div>
+                            <div><strong>Hip Rise:</strong> {rep.hip_rise_feedback}</div>
+                          </div>
+                      </div>
                       ))}
                     </div>
                   )}
