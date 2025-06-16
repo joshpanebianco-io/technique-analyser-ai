@@ -115,8 +115,7 @@ def hip_rise_feedback(ratio):
     else:
         return "Excessive early hip rise — likely compensation due to weak quads or poor bracing."
 
-
-    
+   
 
 def extract_pose_landmarks(video_path: str):
     cap = cv2.VideoCapture(video_path)
