@@ -4,7 +4,9 @@ An AI-powered web app that analyses your **squat technique** from a video and pr
 
 📤 Upload video of your set → 🔍 Let the model analyse → ✅ Get your score and feedback!
 
-🔗 **Live App**: [https://joshpanebianco-io.github.io/technique-analyser-ai/](https://joshpanebianco-io.github.io/technique-analyser-ai/)
+🔗 **Live App**: [https://joshpanebianco-io.github.io/technique-analyser-ai/](https://joshpanebianco-io.github.io/technique-analyser-ai/) 
+
+_(**Note**: Backend is hosted on the free tier of Render.com which suspends services after a period of inactivity, so may take 1-2 minutes to spin up once it receives traffic again.)_
 
 ---
 
