@@ -51,11 +51,11 @@ def knee_score(angle):
 def torso_score(angle):
     if angle < 25:
         return 1.0
-    elif angle < 40:
+    elif angle < 30:
         return 0.8
-    elif angle < 55:
+    elif angle < 45:
         return 0.5
-    elif angle < 70:
+    elif angle < 60:
         return 0.2
     else:
         return 0.0
