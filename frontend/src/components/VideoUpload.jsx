@@ -23,10 +23,13 @@ export default function VideoUpload() {
     formData.append("file", file);
 
     try {
+
+      const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+      const backendUrl = isLocalhost ? "http://localhost:8000/upload" : "https://technique-analyser-api.onrender.com/upload";
+
       // Use XMLHttpRequest for progress tracking, as fetch API doesn't support it natively for uploads
       const xhr = new XMLHttpRequest();
-       //xhr.open("POST", "http://localhost:8000/upload");
-      xhr.open("POST", "https://technique-analyser-api.onrender.com/upload");
+      xhr.open("POST", backendUrl);
 
       // Event listener for upload progress
       xhr.upload.addEventListener("progress", (event) => {
