@@ -68,14 +68,3 @@ Here’s a preview of the app in action:
   <img src="screenshots/set-analysis.png" alt="Analysis" width="300"/>
   <img src="screenshots/rep-by-rep.png" alt="Results" width="300"/>
 
-
----
-
-## 🛠 Installation (Dev Setup)
-
-### Backend (FastAPI)
-
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload
