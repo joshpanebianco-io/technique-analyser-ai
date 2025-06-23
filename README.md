@@ -2,7 +2,7 @@
 
 An AI-powered web app that analyses your **squat technique** from a video and provides a score along with rep-by-rep feedback on key biomechanics like **depth**, **knee angle**, **hip angle**, and **torso positioning**. (Video must be from a side on angle)
 
-📤 Upload video of your set → 🔍 Let the model analyse → ✅ Get your score and feedback!
+📤 Upload video of your set → 🔍 Let MediaPipe Pose Detection analyse  → ✅ Get your score and feedback!
 
 🔗 **Live App**: [https://joshpanebianco-io.github.io/technique-analyser-ai/](https://joshpanebianco-io.github.io/technique-analyser-ai/) 
 
@@ -30,7 +30,7 @@ An AI-powered web app that analyses your **squat technique** from a video and pr
 
 ## 🎯 Objectives
 
-- Gain practical experience working with **pose estimation & AI models**
+- Gain practical experience working with **pose estimation**
 - Use **MediaPipe** to extract biomechanical insights
 - Understand how to build and deploy fullstack AI apps using **Python (FastAPI)** and **React**
 - Experience deploying on **Render** (API) and **GitHub Pages** (Frontend)
