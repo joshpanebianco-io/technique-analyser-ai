@@ -31,9 +31,10 @@ An AI-powered web app that analyses your **squat technique** from a video and pr
 ## 🎯 Objectives
 
 - Gain practical experience working with **pose estimation**
-- Use **MediaPipe** to extract biomechanical insights
-- Understand how to build and deploy fullstack AI apps using **Python (FastAPI)** and **React**
-- Experience deploying on **Render** (API) and **GitHub Pages** (Frontend)
+- Utilize **MediaPipe** to extract detailed biomechanical insights
+- Explore **real-time** processing and visualization of pose data
+- Understand challenges in accuracy, latency, and robustness in **pose estimation** models
+- Experiment with custom **model** fine-tuning and integration of sensors
 
 ---
 
@@ -45,7 +46,6 @@ An AI-powered web app that analyses your **squat technique** from a video and pr
   - Set-level score
   - Summary of key movement faults (e.g., depth, posture)
   - Rep-by-rep analysis
-- **CORS Support** — cross-domain API integration between GitHub Pages and Render
 
 ---
 
